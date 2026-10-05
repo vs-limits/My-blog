@@ -1,0 +1,397 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { getTagColor } from '../utils/tagColors';
+import PostCover from '../components/PostCover.astro';
+
+const posts = await getCollection('blog', ({ data }) => !data.draft);
+
+// 按发布时间倒序排列
+posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+// 按年份分组
+const postsByYear = posts.reduce<Record<string, typeof posts>>((acc, post) => {
+  const year = post.data.pubDate.getFullYear().toString();
+  if (!acc[year]) {
+    acc[year] = [];
+  }
+  acc[year].push(post);
+  return acc;
+}, {});
+
+const years = Object.keys(postsByYear).sort((a, b) => Number(b) - Number(a));
+
+function formatDate(date: Date) {
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${month}-${day}`;
+}
+---
+
+<BaseLayout isHome={true}>
+  <!-- 1. 固定全屏封面 Banner (Hero Section) -->
+  <section class="min-h-screen flex flex-col justify-between items-center text-center px-6 pt-20 pb-8 sm:pt-24 sm:pb-10 relative overflow-hidden bg-cover bg-center" style="background-image: url('/hero-cover.jpg');">
+    <!-- 柔和遮罩：顶部微暗，底部自然平滑淡入暖黄背景 #FAF7EE -->
+    <div class="absolute inset-0 bg-gradient-to-b from-black/45 via-black/20 to-[#FAF7EE] backdrop-blur-[0.5px]"></div>
+
+    <!-- 顶部留白缓冲 -->
+    <div class="relative z-10"></div>
+
+    <!-- 核心区域：纯透明浮动 + 链接至 GitHub 的头像 + 博客主标题 + 打字机效果 -->
+    <div class="relative z-10 max-w-xl w-full mx-auto my-auto px-6 text-center">
+      <!-- 头像：第一张图片，点击跳转到用户的 GitHub -->
+      <div class="mb-6 flex justify-center">
+        <a
+          href="https://github.com/vs-limits"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="访问我的 GitHub (@vs-limits)"
+          class="group relative block"
+        >
+          <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white/90 shadow-2xl ring-2 ring-black/10 group-hover:scale-105 group-hover:rotate-2 transition-all duration-300">
+            <img
+              src="/avatar.jpg"
+              alt="vs-limits Avatar"
+              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+            />
+          </div>
+          <!-- 右下角 GitHub 标识 -->
+          <div class="absolute bottom-1 right-1 bg-[#241F1B] text-[#FAF7EE] p-1.5 rounded-full shadow-lg border-2 border-white group-hover:bg-[#9C5B28] transition-colors">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+            </svg>
+          </div>
+        </a>
+      </div>
+
+      <!-- 博客名称 -->
+      <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-4 drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)]">
+        Lynmeto's Blog
+      </h1>
+
+      <!-- 打字机动态文字展示区域 -->
+      <div class="min-h-[2.5rem] flex items-center justify-center">
+        <span id="typewriter-text" class="text-base sm:text-xl text-white font-mono font-medium drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)]"></span>
+        <span class="typewriter-cursor text-white text-base sm:text-xl font-mono font-bold ml-1">|</span>
+      </div>
+
+      <!-- 统计指标胶囊 -->
+      <div class="mt-6 inline-flex items-center gap-4 px-4 py-1.5 rounded-full bg-black/35 backdrop-blur-sm border border-white/30 text-xs text-white/90 font-mono shadow-md">
+        <span>收录 {posts.length} 篇笔记</span>
+        <span>·</span>
+        <span>跨越 {years.length} 个年份</span>
+      </div>
+    </div>
+
+    <!-- 底部向下翻页交互指示器 (带柔和弹跳动画) -->
+    <div class="relative z-10 pt-6 pb-2">
+      <button
+        id="scroll-down-btn"
+        class="group flex flex-col items-center gap-2 text-white hover:text-white/80 transition-all cursor-pointer focus:outline-none"
+        aria-label="向下翻阅文章"
+      >
+        <span class="text-xs font-mono tracking-widest uppercase bg-black/30 backdrop-blur-xs px-3 py-1 rounded-full border border-white/30 shadow-md transition-all text-white/90">
+          向下翻阅
+        </span>
+        <div class="w-8 h-8 rounded-full bg-black/30 backdrop-blur-xs border border-white/30 flex items-center justify-center transition-colors shadow-md">
+          <svg
+            class="w-4 h-4 text-white animate-bounce"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </div>
+      </button>
+    </div>
+  </section>
+
+  <!-- 2. 正文文章列表区域 (向下翻页目标锚点) -->
+  <div id="article-section" class="w-full max-w-3xl mx-auto px-6 py-14 sm:py-20 scroll-mt-14">
+    <!-- 章节标题与引导 -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold tracking-tight text-[#241F1B] mb-2">文章列表</h2>
+      <p class="text-sm text-[#786E64]">
+        点击任意卡片即可进入阅读
+      </p>
+    </div>
+
+    <!-- 文章检索框 -->
+    <div class="mb-10">
+      <div class="relative flex items-center">
+        <svg
+          class="absolute left-3.5 w-4 h-4 text-[#8C8276] pointer-events-none"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
+        <input
+          id="article-search"
+          type="text"
+          placeholder="搜索文章标题、标签或简介... (按 ESC 清空)"
+          autocomplete="off"
+          class="w-full pl-10 pr-10 py-2.5 bg-[#F3EDE1] text-[#2D2722] placeholder-[#9C9388] text-sm rounded-lg border border-[#E3DAC8] focus:outline-none focus:border-[#9C5B28] focus:ring-1 focus:ring-[#9C5B28] transition-all"
+        />
+        <button
+          id="search-clear-btn"
+          type="button"
+          class="hidden absolute right-3 text-[#9C9388] hover:text-[#2D2722] p-1 text-xs transition-colors"
+          aria-label="清空搜索"
+        >
+          ✕
+        </button>
+      </div>
+      <div id="search-result-stats" class="hidden mt-2.5 text-xs text-[#8C8276] font-mono"></div>
+    </div>
+
+    <!-- 按年份分组的文章列表 (方案 A: 横向图文卡片) -->
+    <div id="article-list-container" class="space-y-12">
+      {years.map((year) => (
+        <div class="year-group" data-year={year}>
+          <div class="flex items-center gap-3 mb-5">
+            <h3 class="text-xl font-bold text-[#2D2722] font-mono tracking-tight">{year}</h3>
+            <div class="h-px flex-1 bg-[#EAE2D3]" />
+            <span class="year-count text-xs text-[#9B9186] font-mono">
+              {postsByYear[year].length} 篇
+            </span>
+          </div>
+
+          <ul class="space-y-5">
+            {postsByYear[year].map((post) => (
+              <li
+                class="post-item group relative flex flex-col sm:flex-row items-stretch gap-4 sm:gap-6 p-4 rounded-xl bg-[#FAF7EE] hover:bg-[#F3ECE0]/70 border border-[#E8E1D1] hover:border-[#DCCBB5] hover:shadow-xs transition-all duration-200"
+                data-title={post.data.title.toLowerCase()}
+                data-tags={(post.data.tags || []).join(' ').toLowerCase()}
+                data-desc={(post.data.description || '').toLowerCase()}
+              >
+                <!-- 封面图 (左侧) -->
+                <a
+                  href={`/posts/${post.id}/`}
+                  class="shrink-0 w-full sm:w-52 h-44 sm:h-32 rounded-lg overflow-hidden border border-[#E3DAC8]/70 block relative"
+                  tabindex="-1"
+                  aria-hidden="true"
+                >
+                  <PostCover
+                    cover={post.data.cover}
+                    title={post.data.title}
+                    tag={post.data.tags?.[0]}
+                  />
+                </a>
+
+                <!-- 文章文字与信息 (右侧) -->
+                <div class="flex-1 flex flex-col justify-between min-w-0 py-0.5">
+                  <div>
+                    <!-- 日期 -->
+                    <div class="flex items-center gap-2 text-xs font-mono text-[#8C8276] mb-1.5">
+                      <time datetime={post.data.pubDate.toISOString()} class="tabular-nums">
+                        {formatDate(post.data.pubDate)}
+                      </time>
+                    </div>
+
+                    <!-- 标题 -->
+                    <h4 class="text-base sm:text-lg font-bold text-[#241F1B] group-hover:text-[#9C5B28] transition-colors leading-snug mb-1.5">
+                      <a href={`/posts/${post.id}/`} class="post-title hover:underline underline-offset-4 decoration-[#DCCBB5]">
+                        {post.data.title}
+                      </a>
+                    </h4>
+
+                    <!-- 摘要 -->
+                    {post.data.description && (
+                      <p class="text-xs sm:text-sm text-[#786E64] line-clamp-2 leading-relaxed mb-3">
+                        {post.data.description}
+                      </p>
+                    )}
+                  </div>
+
+                  <!-- 标签列表 -->
+                  {post.data.tags && post.data.tags.length > 0 && (
+                    <div class="flex flex-wrap items-center gap-1.5 mt-auto pt-1">
+                      {post.data.tags.map((tag) => {
+                        const color = getTagColor(tag);
+                        return (
+                          <a
+                            href={`/tags/${encodeURIComponent(tag)}/`}
+                            class={`text-[11px] px-2 py-0.5 rounded border transition-all ${color.bg} ${color.text} ${color.border} ${color.hover}`}
+                          >
+                            #{tag}
+                          </a>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+
+      <!-- 搜索无结果提示 -->
+      <div id="search-empty-state" class="hidden py-14 text-center text-[#8C8276] text-sm">
+        <div class="text-2xl mb-2">🔍</div>
+        <p id="search-empty-text">未找到相关文章</p>
+      </div>
+
+      {posts.length === 0 && (
+        <div class="py-12 text-center text-[#8C8276] text-sm">
+          暂无已发布文章，可在 <code>src/content/blog/</code> 中直接新增 Markdown 笔记。
+        </div>
+      )}
+    </div>
+  </div>
+
+  <!-- 打字机效果与滚动翻页交互脚本 -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. 打字机效果实现
+      const typewriterElement = document.getElementById('typewriter-text');
+      const phrases = [
+        "welcome to my channel :)",
+        "My intuition is telling me it will be a better day",
+        "Everybody wanted to know what I would do if I didn't win",
+        "I guess we’ll never know",
+        "Stripe Life:回顾我走过的地面"
+      ];
+
+      let phraseIndex = 0;
+      let charIndex = 0;
+      let isDeleting = false;
+      let typingSpeed = 80;
+
+      function typeWriter() {
+        if (!typewriterElement) return;
+
+        const currentPhrase = phrases[phraseIndex];
+        const chars = Array.from(currentPhrase);
+
+        if (isDeleting) {
+          charIndex--;
+          typewriterElement.textContent = chars.slice(0, charIndex).join('');
+          typingSpeed = 40;
+        } else {
+          charIndex++;
+          typewriterElement.textContent = chars.slice(0, charIndex).join('');
+          typingSpeed = 85;
+        }
+
+        if (!isDeleting && charIndex === chars.length) {
+          // 当前句子打完，停留 2.2 秒后开始回退删除
+          typingSpeed = 2200;
+          isDeleting = true;
+        } else if (isDeleting && charIndex === 0) {
+          // 当前句子回删完毕，切换至下一句
+          isDeleting = false;
+          phraseIndex = (phraseIndex + 1) % phrases.length;
+          typingSpeed = 500;
+        }
+
+        setTimeout(typeWriter, typingSpeed);
+      }
+
+      typeWriter();
+
+      // 2. 向下翻页滚动交互
+      const scrollDownBtn = document.getElementById('scroll-down-btn');
+      scrollDownBtn?.addEventListener('click', () => {
+        const targetSection = document.getElementById('article-section');
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+
+      // 3. 即时文章搜索与高亮
+      const searchInput = document.getElementById('article-search') as HTMLInputElement | null;
+      const clearBtn = document.getElementById('search-clear-btn');
+      const stats = document.getElementById('search-result-stats');
+      const emptyState = document.getElementById('search-empty-state');
+      const emptyText = document.getElementById('search-empty-text');
+      const postItems = document.querySelectorAll('.post-item');
+      const yearGroups = document.querySelectorAll('.year-group');
+
+      function performSearch() {
+        const query = searchInput?.value.trim().toLowerCase() || '';
+
+        if (!query) {
+          clearBtn?.classList.add('hidden');
+          stats?.classList.add('hidden');
+          emptyState?.classList.add('hidden');
+
+          postItems.forEach((item) => ((item as HTMLElement).style.display = ''));
+          yearGroups.forEach((group) => ((group as HTMLElement).style.display = ''));
+          return;
+        }
+
+        clearBtn?.classList.remove('hidden');
+
+        let totalMatches = 0;
+
+        yearGroups.forEach((group) => {
+          const itemsInGroup = group.querySelectorAll('.post-item');
+          let visibleInGroup = 0;
+
+          itemsInGroup.forEach((item) => {
+            const el = item as HTMLElement;
+            const title = el.getAttribute('data-title') || '';
+            const tags = el.getAttribute('data-tags') || '';
+            const desc = el.getAttribute('data-desc') || '';
+
+            const isMatch = title.includes(query) || tags.includes(query) || desc.includes(query);
+
+            if (isMatch) {
+              el.style.display = '';
+              visibleInGroup++;
+              totalMatches++;
+            } else {
+              el.style.display = 'none';
+            }
+          });
+
+          if (visibleInGroup === 0) {
+            (group as HTMLElement).style.display = 'none';
+          } else {
+            (group as HTMLElement).style.display = '';
+          }
+        });
+
+        if (stats) {
+          stats.classList.remove('hidden');
+          stats.textContent = `共匹配到 ${totalMatches} 篇相关文章`;
+        }
+
+        if (totalMatches === 0) {
+          if (emptyState && emptyText) {
+            emptyState.classList.remove('hidden');
+            emptyText.textContent = `未找到与 “${query}” 相关的文章或排查记录`;
+          }
+        } else {
+          emptyState?.classList.add('hidden');
+        }
+      }
+
+      searchInput?.addEventListener('input', performSearch);
+
+      clearBtn?.addEventListener('click', () => {
+        if (searchInput) {
+          searchInput.value = '';
+          performSearch();
+          searchInput.focus();
+        }
+      });
+
+      searchInput?.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && searchInput) {
+          searchInput.value = '';
+          performSearch();
+        }
+      });
+    });
+  </script>
+</BaseLayout>

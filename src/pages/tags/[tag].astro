@@ -1,0 +1,114 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { getTagColor } from '../../utils/tagColors';
+import PostCover from '../../components/PostCover.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+
+  // 提取所有唯一标签
+  const allTags = new Set<string>();
+  posts.forEach((post) => {
+    post.data.tags.forEach((tag) => allTags.add(tag));
+  });
+
+  return Array.from(allTags).map((tag) => {
+    const filteredPosts = posts
+      .filter((post) => post.data.tags.includes(tag))
+      .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+    return {
+      params: { tag },
+      props: { posts: filteredPosts },
+    };
+  });
+}
+
+const { tag } = Astro.params;
+const { posts } = Astro.props;
+const tagColor = getTagColor(tag || '');
+
+function formatDate(date: Date) {
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+---
+
+<BaseLayout title={`标签: #${tag} · 个人笔记`}>
+  <div class="mb-10">
+    <div class="mb-4">
+      <a href="/tags" class="text-xs text-[#8C8276] hover:text-[#9C5B28] transition-colors">
+        ← 所有标签
+      </a>
+    </div>
+    <div class="flex items-center gap-3 mb-2">
+      <span class={`text-xl font-bold px-3 py-1 rounded-md border ${tagColor.bg} ${tagColor.text} ${tagColor.border}`}>
+        #{tag}
+      </span>
+    </div>
+    <p class="text-sm text-[#786E64] mt-2">共包含 {posts.length} 篇相关文章</p>
+  </div>
+
+  <ul class="space-y-5">
+    {posts.map((post) => (
+      <li class="post-item group relative flex flex-col sm:flex-row items-stretch gap-4 sm:gap-6 p-4 rounded-xl bg-[#FAF7EE] hover:bg-[#F3ECE0]/70 border border-[#E8E1D1] hover:border-[#DCCBB5] hover:shadow-xs transition-all duration-200">
+        <!-- 封面图 -->
+        <a
+          href={`/posts/${post.id}/`}
+          class="shrink-0 w-full sm:w-48 h-40 sm:h-28 rounded-lg overflow-hidden border border-[#E3DAC8]/70 block relative"
+          tabindex="-1"
+          aria-hidden="true"
+        >
+          <PostCover
+            cover={post.data.cover}
+            title={post.data.title}
+            tag={tag}
+          />
+        </a>
+
+        <!-- 文章信息 -->
+        <div class="flex-1 flex flex-col justify-between min-w-0 py-0.5">
+          <div>
+            <time
+              datetime={post.data.pubDate.toISOString()}
+              class="text-xs font-mono text-[#8C8276] tabular-nums block mb-1.5"
+            >
+              {formatDate(post.data.pubDate)}
+            </time>
+            <h4 class="text-base sm:text-lg font-bold text-[#241F1B] group-hover:text-[#9C5B28] transition-colors leading-snug mb-1.5">
+              <a
+                href={`/posts/${post.id}/`}
+                class="hover:underline underline-offset-4 decoration-[#DCCBB5]"
+              >
+                {post.data.title}
+              </a>
+            </h4>
+            {post.data.description && (
+              <p class="text-xs sm:text-sm text-[#786E64] line-clamp-2 leading-relaxed">
+                {post.data.description}
+              </p>
+            )}
+          </div>
+
+          {post.data.tags && post.data.tags.length > 0 && (
+            <div class="flex flex-wrap items-center gap-1.5 mt-auto pt-2">
+              {post.data.tags.map((t) => {
+                const color = getTagColor(t);
+                return (
+                  <a
+                    href={`/tags/${encodeURIComponent(t)}/`}
+                    class={`text-[11px] px-2 py-0.5 rounded border transition-all ${color.bg} ${color.text} ${color.border} ${color.hover}`}
+                  >
+                    #{t}
+                  </a>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>

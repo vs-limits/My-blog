@@ -1,0 +1,10 @@
+services:
+  myblog:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: myblog-website
+    restart: unless-stopped
+    ports:
+      # 可根据需要映射到宿主机端口，若前面有主 Nginx 反代，可映射为 8080:80
+      - "80:80"

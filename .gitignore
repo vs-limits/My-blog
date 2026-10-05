@@ -1,0 +1,33 @@
+# build output
+dist/
+dist.zip
+dist.tar.gz
+
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# environment variables
+.env
+.env.*
+!.env.example
+
+# deployment scripts with sensitive server IPs (use deploy.*.example instead)
+deploy.bat
+deploy.ps1
+
+# macOS-specific files
+.DS_Store
+
+# editor setting folders
+.idea/
+.vscode/
+

@@ -1,0 +1,37 @@
+@echo off
+cd /d "%~dp0"
+
+echo ==================================================
+echo [1/2] Building blog static files...
+echo ==================================================
+call npm run build
+if %errorlevel% neq 0 (
+    echo.
+    echo [ERROR] Build failed!
+    pause
+    exit /b %errorlevel%
+)
+
+echo.
+echo ==================================================
+echo [2/2] Uploading to server via SCP...
+echo Please enter your root password when prompted:
+echo ==================================================
+echo.
+
+:: 请将下方参数替换为您实际的服务器公网 IP 与部署目录
+scp -P 22 -o StrictHostKeyChecking=accept-new -r dist/_astro dist/covers dist/images dist/posts dist/tags dist/about dist/* root@<YOUR_SERVER_IP>:<YOUR_TARGET_DIR>/
+
+if %errorlevel% equ 0 (
+    echo.
+    echo ==================================================
+    echo Deployment Successful!
+    echo Visit your blog: https://<YOUR_DOMAIN>
+    echo ==================================================
+) else (
+    echo.
+    echo [ERROR] Upload failed. Please check password or network.
+)
+
+echo.
+pause

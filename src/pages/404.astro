@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="页面未找到 · 404">
+  <div class="py-16 text-center space-y-4">
+    <div class="text-5xl font-mono font-bold text-[#9C5B28]">404</div>
+    <h1 class="text-xl font-medium text-[#2D2722]">这页笔记可能被移动或删除了</h1>
+    <p class="text-sm text-[#786E64]">
+      请检查网址是否正确，或返回首页检索其他文章。
+    </p>
+    <div class="pt-4">
+      <a
+        href="/"
+        class="inline-block text-sm bg-[#F2EAE0] hover:bg-[#EAE1D3] text-[#786E64] hover:text-[#9C5B28] px-4 py-2 rounded border border-[#E5DEC9] transition-colors"
+      >
+        ← 返回文章列表
+      </a>
+    </div>
+  </div>
+</BaseLayout>

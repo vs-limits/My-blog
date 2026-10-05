@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { getTagColor } from '../../utils/tagColors';
+
+const posts = await getCollection('blog', ({ data }) => !data.draft);
+
+// 统计标签及其文章数量
+const tagCountMap = posts.reduce<Record<string, number>>((acc, post) => {
+  post.data.tags.forEach((tag) => {
+    acc[tag] = (acc[tag] || 0) + 1;
+  });
+  return acc;
+}, {});
+
+const sortedTags = Object.entries(tagCountMap).sort((a, b) => b[1] - a[1]);
+---
+
+<BaseLayout title="所有标签 · 个人笔记" description="按标签浏览所有技术分类与问题总结">
+  <div class="mb-10">
+    <h1 class="text-2xl font-bold tracking-tight text-[#241F1B] mb-2">标签分类</h1>
+    <p class="text-sm text-[#786E64]">按主题检索不同维度的知识与排查复盘</p>
+  </div>
+
+  <div class="flex flex-wrap gap-3">
+    {sortedTags.map(([tag, count]) => {
+      const color = getTagColor(tag);
+      return (
+        <a
+          href={`/tags/${encodeURIComponent(tag)}/`}
+          class={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm border transition-all ${color.bg} ${color.text} ${color.border} ${color.hover} hover:shadow-xs`}
+        >
+          <span class="font-medium">#{tag}</span>
+          <span class="text-xs font-mono opacity-80 bg-white/40 px-1.5 py-0.2 rounded">
+            {count}
+          </span>
+        </a>
+      );
+    })}
+
+    {sortedTags.length === 0 && (
+      <p class="text-sm text-[#8C8276]">暂无任何标签数据。</p>
+    )}
+  </div>
+</BaseLayout>

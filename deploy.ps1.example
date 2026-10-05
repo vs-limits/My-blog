@@ -1,0 +1,52 @@
+# ==============================================================================
+# 博客一键构建与部署脚本 (Debian 云服务器 - 示例模板)
+# ==============================================================================
+
+# 配置你的服务器信息（首次使用请修改下方参数）：
+$SERVER_IP   = "<YOUR_SERVER_IP>"      # 例如: 123.45.67.89
+$SERVER_USER = "root"                  # 服务器用户名，通常为 root 或 debian
+$SSH_PORT    = 22                      # SSH 端口，默认 22
+$TARGET_DIR  = "/opt/1panel/apps/openresty/openresty/www/sites/<YOUR_DOMAIN>/index"    # 静态网页目录
+
+# ------------------------------------------------------------------------------
+Write-Host ">>> 1/2 开始静态构建博客..." -ForegroundColor Cyan
+npm run build
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "构建失败，请检查报错后重试！" -ForegroundColor Red
+    pause
+    exit 1
+}
+
+Write-Host ">>> 构建成功！" -ForegroundColor Green
+
+# 检查是否配置了服务器 IP
+if ($SERVER_IP -eq "<YOUR_SERVER_IP>") {
+    Write-Host ""
+    Write-Host "[提示] 请打开 deploy.ps1 文件，将 `$SERVER_IP 修改为你实际的服务器 IP。" -ForegroundColor Yellow
+    $SERVER_IP = Read-Host "或者现在输入你的云服务器 IP"
+    if ([string]::IsNullOrWhiteSpace($SERVER_IP)) {
+        Write-Host "未输入服务器 IP，部署终止。" -ForegroundColor Red
+        pause
+        exit 1
+    }
+}
+
+Write-Host ""
+Write-Host ">>> 2/2 正在通过 SCP 上传至服务器 ${SERVER_USER}@${SERVER_IP}:${TARGET_DIR} ..." -ForegroundColor Cyan
+
+# 执行 scp 上传
+scp -P $SSH_PORT -o StrictHostKeyChecking=accept-new -r dist/* "${SERVER_USER}@${SERVER_IP}:${TARGET_DIR}/"
+
+if ($LASTEXITCODE -eq 0) {
+    Write-Host ""
+    Write-Host "==================================================" -ForegroundColor Green
+    Write-Host "🎉 博客部署成功！" -ForegroundColor Green
+    Write-Host "访问你的博客: https://<YOUR_DOMAIN>" -ForegroundColor Green
+    Write-Host "==================================================" -ForegroundColor Green
+} else {
+    Write-Host ""
+    Write-Host "上传失败，请检查 SSH 连接权限或网络！" -ForegroundColor Red
+}
+
+Read-Host "按回车键退出..."

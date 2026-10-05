@@ -1,0 +1,135 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getTagColor } from '../../utils/tagColors';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).replace(/\//g, '-');
+}
+---
+
+<BaseLayout title={`${post.data.title} · 个人笔记`} description={post.data.description}>
+  <article class="w-full">
+    <!-- 返回导航 -->
+    <div class="mb-8">
+      <a
+        href="/"
+        class="inline-flex items-center gap-1.5 text-xs text-[#8C8276] hover:text-[#9C5B28] transition-colors group"
+      >
+        <span class="group-hover:-translate-x-1 transition-transform">←</span>
+        <span>返回文章列表</span>
+      </a>
+    </div>
+
+    <!-- 文章头部元信息 -->
+    <header class="mb-10 pb-6 border-b border-[#E8E1D1]">
+      <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#241F1B] leading-snug mb-4">
+        {post.data.title}
+      </h1>
+
+      {post.data.description && (
+        <p class="text-sm text-[#6B6157] leading-relaxed mb-4">
+          {post.data.description}
+        </p>
+      )}
+
+      <div class="flex flex-wrap items-center gap-4 text-xs text-[#8C8276] font-mono">
+        <time datetime={post.data.pubDate.toISOString()}>
+          发布于 {formatDate(post.data.pubDate)}
+        </time>
+
+        {post.data.tags && post.data.tags.length > 0 && (
+          <div class="flex items-center gap-2">
+            <span>·</span>
+            <div class="flex items-center gap-1.5">
+              {post.data.tags.map((tag) => {
+                const color = getTagColor(tag);
+                return (
+                  <a
+                    href={`/tags/${encodeURIComponent(tag)}/`}
+                    class={`px-2 py-0.5 rounded border transition-all ${color.bg} ${color.text} ${color.border} ${color.hover}`}
+                  >
+                    #{tag}
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </header>
+
+    <!-- 文章封面大图 (若配置) -->
+    {post.data.cover && (
+      <div class="mb-10 rounded-xl overflow-hidden border border-[#E8E1D1] shadow-xs">
+        <img
+          src={post.data.cover}
+          alt={post.data.title}
+          class="w-full max-h-[380px] object-cover"
+        />
+      </div>
+    )}
+
+    <!-- 文章正文内容 -->
+    <div class="prose max-w-none text-[#2D2722] leading-relaxed">
+      <Content />
+    </div>
+
+    <!-- 底部回到顶部与返回导航 -->
+    <div class="mt-16 pt-6 border-t border-[#E8E1D1] flex items-center justify-between text-xs text-[#8C8276]">
+      <a href="/" class="hover:text-[#9C5B28] transition-colors">
+        ← 返回文章列表
+      </a>
+      <a href="#" class="hover:text-[#9C5B28] transition-colors">
+        回到顶部 ↑
+      </a>
+    </div>
+  </article>
+
+  <!-- 代码块一键复制脚本 -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const codeBlocks = document.querySelectorAll('pre');
+      codeBlocks.forEach((pre) => {
+        // 创建容器相对定位
+        pre.style.position = 'relative';
+
+        const button = document.createElement('button');
+        button.className = 'copy-code-btn absolute top-2.5 right-2.5 text-[11px] font-mono text-[#A89F93] hover:text-[#F3ECE0] bg-[#332F2B] hover:bg-[#423D38] px-2 py-1 rounded transition-colors border border-[#48423B]';
+        button.innerText = 'Copy';
+
+        button.addEventListener('click', async () => {
+          const code = pre.querySelector('code')?.innerText || pre.innerText;
+          try {
+            await navigator.clipboard.writeText(code);
+            button.innerText = 'Copied!';
+            button.classList.add('text-[#86EFAC]');
+            setTimeout(() => {
+              button.innerText = 'Copy';
+              button.classList.remove('text-[#86EFAC]');
+            }, 2000);
+          } catch (err) {
+            button.innerText = 'Failed';
+          }
+        });
+
+        pre.appendChild(button);
+      });
+    });
+  </script>
+</BaseLayout>

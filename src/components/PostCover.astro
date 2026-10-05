@@ -1,0 +1,61 @@
+---
+interface Props {
+  cover?: string;
+  title: string;
+  tag?: string;
+  class?: string;
+}
+
+const { cover, title, tag = 'Note', class: className = '' } = Astro.props;
+
+// 预设几种柔和温润的莫兰迪抽象渐变底色，未配图时自动轮换呈现高级感
+const fallbackGradients = [
+  'from-[#F5EDE0] via-[#EFE5D3] to-[#E3D4BC]',
+  'from-[#EDE7F2] via-[#E6DCEE] to-[#D8C7E3]',
+  'from-[#E2EBE5] via-[#D8E4DC] to-[#C7D8CD]',
+  'from-[#E4EBF2] via-[#DAE4EE] to-[#C7D7E5]',
+  'from-[#F4E8EB] via-[#EDE0E4] to-[#DEC6CD]',
+];
+
+// 根据标题哈希选择固定的渐变色，保证同篇文章刷新后颜色一致
+let hash = 0;
+for (let i = 0; i < title.length; i++) {
+  hash = (hash << 5) - hash + title.charCodeAt(i);
+  hash |= 0;
+}
+const gradient = fallbackGradients[Math.abs(hash) % fallbackGradients.length];
+---
+
+<div class={`w-full h-full overflow-hidden relative flex items-center justify-center ${className}`}>
+  {cover ? (
+    <img
+      src={cover}
+      alt={title}
+      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+      loading="lazy"
+    />
+  ) : (
+    <div class={`w-full h-full bg-gradient-to-br ${gradient} p-4 flex flex-col justify-between items-start text-left select-none relative group-hover:scale-105 transition-transform duration-300`}>
+      <!-- 极简微纹理装饰图案 -->
+      <div class="absolute right-2 top-2 opacity-15 text-4xl font-serif pointer-events-none">
+        ✦
+      </div>
+      <div class="absolute -right-4 -bottom-4 w-16 h-16 rounded-full bg-white/20 blur-xs pointer-events-none"></div>
+
+      <!-- 标签或分类标识 -->
+      <span class="text-[10px] sm:text-[11px] font-mono font-medium tracking-wider uppercase px-2 py-0.5 rounded bg-black/10 text-[#4A423B] backdrop-blur-xs">
+        #{tag}
+      </span>
+
+      <!-- 底部微标 -->
+      <div class="w-full flex items-center justify-between mt-auto">
+        <span class="text-[11px] font-mono text-[#6E6359] truncate max-w-[85%] font-medium">
+          {title}
+        </span>
+        <svg class="w-3.5 h-3.5 text-[#8C7E72] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </div>
+    </div>
+  )}
+</div>

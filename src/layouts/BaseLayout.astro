@@ -1,0 +1,107 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  isHome?: boolean;
+}
+
+const {
+  title = "Lynmeto's Blog",
+  description = "记录日常开发踩坑、问题排查复盘与体系化技术沉淀。",
+  isHome = false,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+  </head>
+  <body class="bg-[#FAF7EE] text-[#2D2722] min-h-screen flex flex-col selection:bg-[#EADFCF]">
+    <!-- 顶部导航栏：首页默认白字纯透明，滚动时柔和切换为暖色磨砂深字 -->
+    <header
+      id="site-header"
+      data-is-home={isHome ? "true" : "false"}
+      class={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isHome
+          ? "bg-transparent border-b border-transparent text-white"
+          : "backdrop-blur-md bg-[#FAF7EE]/85 border-b border-[#E8E1D1]/60 shadow-xs text-[#241F1B]"
+      }`}
+    >
+      <div class="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between">
+        <a
+          href="/"
+          class="text-base sm:text-lg font-bold tracking-tight transition-colors flex items-center gap-2.5 group"
+        >
+          <img
+            src="/avatar.jpg"
+            alt="Lynmeto"
+            class="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border border-white/80 shadow-xs group-hover:scale-105 transition-transform"
+          />
+          <span class="drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)]">Lynmeto's Blog</span>
+        </a>
+        <nav class="flex items-center gap-6 text-sm font-medium">
+          <a
+            href="/#article-section"
+            class="header-link hover:text-[#E89E62] transition-colors drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)]"
+          >
+            文章
+          </a>
+          <a
+            href="/tags"
+            class="header-link hover:text-[#E89E62] transition-colors drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)]"
+          >
+            标签
+          </a>
+          <a
+            href="/about"
+            class="header-link hover:text-[#E89E62] transition-colors drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)]"
+          >
+            关于
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- 主体内容 -->
+    {isHome ? (
+      <main class="flex-1 pb-16">
+        <slot />
+      </main>
+    ) : (
+      <main class="flex-1 w-full max-w-2xl mx-auto px-6 pt-20 sm:pt-24 pb-16">
+        <slot />
+      </main>
+    )}
+
+    <!-- 导航栏随滚动智能变化背景与字体颜色脚本 -->
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const header = document.getElementById('site-header');
+        const isHome = header?.getAttribute('data-is-home') === 'true';
+
+        if (!isHome) return;
+
+        function updateHeader() {
+          if (window.scrollY > 40) {
+            header?.classList.add('backdrop-blur-md', 'bg-[#FAF7EE]/90', 'border-[#E8E1D1]/60', 'shadow-xs', 'text-[#241F1B]');
+            header?.classList.remove('bg-transparent', 'border-transparent', 'text-white');
+          } else {
+            header?.classList.remove('backdrop-blur-md', 'bg-[#FAF7EE]/90', 'border-[#E8E1D1]/60', 'shadow-xs', 'text-[#241F1B]');
+            header?.classList.add('bg-transparent', 'border-transparent', 'text-white');
+          }
+        }
+
+        window.addEventListener('scroll', updateHeader, { passive: true });
+        updateHeader();
+      });
+    </script>
+  </body>
+</html>
