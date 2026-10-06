@@ -72,11 +72,11 @@ docker compose logs -f
 
 ### HTTPS反向配置
 
-接下来就是配置HTTPS反向代理，这也是把作者绕晕的地方，但是我已经理清了，这次作者使用的是1panle的OpenResty应用进行配置的(这里1panle的部署和配置我也不再赘述，也说不定下次就更新了~)
+接下来就是配置HTTPS反向代理，这也是把作者绕晕的地方，但是我已经理清了，这次作者使用的是1panel的OpenResty应用进行配置的(这里1panel的部署和配置我也不再赘述，也说不定下次就更新了~)
 
 #### 准备Acme账户
 
-进入1panle页面，我们需要先准备证书，点击网站中的证书，点击Acme账户，点击创建，提供邮箱，选择Let’s Encrypt类型，密钥类型选择EC 256
+进入1panel页面，我们需要先准备证书，点击网站中的证书，点击Acme账户，点击创建，提供邮箱，选择Let’s Encrypt类型，密钥类型选择EC 256
 
 #### 准备DNS账户
 
@@ -84,8 +84,7 @@ docker compose logs -f
 
 然后到cloudflare页面，点击右上角的用户头像，选择profile，进入个人页面后，打开左侧导航栏，选择API token，进入页面后，点击Create Token，选择Edit zone DNS模板
 
-进入页面后，Permission一栏中添加一份Zone - Zone - Read
-Zone Resources一栏中最后一个选择框选择本次使用的根域名，检查无误后，点击下一步，显示图中结构即可
+进入页面后，Permission一栏中添加一份Zone - Zone - Read，Zone Resources一栏中最后一个选择框选择本次使用的根域名，检查无误后，点击下一步，显示图中结构即可
 
 ![Cloudflare Token 配置](/images/Pasted%20image%2020261005201736.png)
 
@@ -140,3 +139,5 @@ docker compose restart
 回到Web端，复制方式二的JSON信息，发送到手机/屏蔽上，复制JSON，回到远端配置页，点击粘贴服务端授权配置，配置完成后就会自动同步笔记内容了，每次关闭和打开都会上传与同步
 
 至此，你就白嫖了Obsidian官方4美刀/月的云存储服务了！恭喜！！
+
+![](../Blog插图/test.png)
