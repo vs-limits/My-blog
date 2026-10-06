@@ -6,7 +6,7 @@ tags:
   - 写作流
   - 网络
   - 知识管理
-cover: /covers/obsidian_sync_cover.jpg
+cover: /covers/obsidian_sync_cover.png
 draft: false
 ---
 作者本人经常使用的笔记软件是Obsidian，中文译名叫黑曜石，听起来很酷炫吧！
@@ -86,7 +86,7 @@ docker compose logs -f
 
 进入页面后，Permission一栏中添加一份Zone - Zone - Read，Zone Resources一栏中最后一个选择框选择本次使用的根域名，检查无误后，点击下一步，显示图中结构即可
 
-![Cloudflare Token 配置](/images/Pasted%20image%2020261005201736.png)
+![Cloudflare Token 配置](/images/Token设置.png)
 
 最后创建Token，并复制到1panle页面，填入API Token框中并创建DNS账户
 
@@ -104,7 +104,7 @@ curl -I https://sync.limits.cc.cd
 ```
 如果返回200，301说明HTTPS已经接通，此时访问对应域名，就可以看到登录页面了
 
-![Web 登录页面](/images/Pasted%20image%2020261005203200.png)
+![Web 登录页面](/images/Sync登录页面.png)
 
 先创建一个账号，再登录进入控制台
 
@@ -140,4 +140,4 @@ docker compose restart
 
 至此，你就白嫖了Obsidian官方4美刀/月的云存储服务了！恭喜！！
 
-![](../Blog插图/test.png)
+![测试图片](/images/test.png)
