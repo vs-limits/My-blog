@@ -5,7 +5,7 @@ tags:
   - Linux
   - 排查
 pubDate: 2026-09-10
-cover: /cover/kali_problem_cover
+cover: /covers/kali_problem_cover.png
 draft: false
 ---
 作者在更新kali虚拟机版本后，发现我的kali虚拟机无法显示鼠标，还以为是安装过程出错了，来来回回折腾了很久，最后才发现是一个很简单的问题 TAT，以及高分辨率屏幕下会导致图标和字体极小，其实解决方法很简单
@@ -30,7 +30,7 @@ sudo reboot
 ### 2. 关闭虚拟机软件的3D图形加速
 
 将虚拟机关机，右键kali虚拟机，选择菜单栏中最底下的设置，找到显示，取消勾选“加速 3D 图形”，如图所示，然后重新开机
-![](../Blog插图/3D图形加速关闭.png)
+![](/images/3D图形加速关闭.png)
 完成后，就可以看到鼠标了，但光标大小不太够，怎么调节呢？
 
 ### 3.切换鼠标主题和光标大小
@@ -56,15 +56,15 @@ kali-hidpi-mode
 系统会提示切换到HiDPI模式，重启后即可生效，如果想复原标准比例，就重新执行上述命令即可
 
 原本的比例大小：
-![](../Blog插图/initial_kali_desltop.png)
+![](/images/initial_kali_desltop.png)
 执行命令后就会放大比例：
-![](../Blog插图/new_kali_desktop.png)
+![](/images/new_kali_desktop.png)
 
 ### 2.通过Xfce外观设置进行"2x 窗口缩放"
 
 如果习惯了图型界面修改，就打开终端，输入`xfce4-appearance-settings`，会弹出下图窗口
-![](../Blog插图/Pasted%20image%2020261006233635.png)
+![](/images/Pasted%20image%2020261006233635.png)
 然后选择setting，选择window Scaling，选择缩放倍数2x，即可
-![](../Blog插图/Pasted%20image%2020261006233724.png)
+![](/images/Pasted%20image%2020261006233724.png)
 
 现在鼠标光标显示问题和缩放比例问题都解决啦！恭喜！！
