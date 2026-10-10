@@ -36,7 +36,7 @@ Burpsuite有分为社区免费版和Pro 订阅版，两者之间的差别会很�
 # 安装java环境
 
 打开资源文件夹，双击运行下图红框的java安装程序
-![](../Blog插图/java_install.png)
+![](/images/java_install.png)
 运行后选择/创建一个存放文件夹，并记住存放路径，安装完成后即可关闭
 
 根据存放路径，打开存放的文件夹，并打开设置，搜索并打开高级设置，修改环境变量，点击在系统变量下方的新建，变量名填入JAVA_HOME，变量值则需将存放路径粘贴进去，完成后保存即可
@@ -48,31 +48,31 @@ Burpsuite有分为社区免费版和Pro 订阅版，两者之间的差别会很�
 # 安装BP Pro
 
 双击运行BP安装软件
-![](../Blog插图/BP_install.png)
+![](/images/BP_install.png)
 运行后，点击next，选择一个安装路径并记住安装路径，然后一路next直到开始安装，等待安装完成
 
 进入到安装路径下，准备替换一些文件，打开BurpLorderKeygen文件夹，打开windows文件夹，里面是破解包和注册机，将windows路径下的文件复制到安装路径下，出现弹窗时点击替换文件，最终如下图
-![](../Blog插图/BP_file_change.png)
+![](/images/BP_file_change.png)
 
 # 注册机获取许可
 
 双击运行，点击同意，直到Enter license Key页面，这里需要一个许可证，双击打开BurpLordKeygen.jar(注册机)，在License Text框中随机输入内容，例如:aaa，然后复制左边的许可证，粘贴进BP的许可证框处
-![](../Blog插图/burpkeygen.png)
+![](/images/burpkeygen.png)
 点击下一步，到激活许可证页面，点击下方的手动激活，复制第二个框中的请求，粘贴到注册机中的右侧框内，这时下方框就会出现回应，复制回应，粘贴到BP界面的第三个框中
-![](../Blog插图/last_step_fot_get.png)
+![](/images/last_step_fot_get.png)
 点击下一步，之后就可以关闭注册机了
 
 # 配置代理端口
 
 激活完成后，会看见下图内容
-![](../Blog插图/BP_start.png)
+![](/images/BP_start.png)
 点击下一个，再点击启动Burp
 点击上方导航栏的代理选项，点击Proxy settings
-![](../Blog插图/Proxy_setting.png)
+![](/images/Proxy_setting.png)
 可以看到监听的是8080端口
 
 接下来去安装Burp的证书，打开浏览器，访问`127.0.0.1:8080`，访问到BP的页面，点击右侧的证书获取
-![](../Blog插图/CA_Certificate.png)
+![](/images/CA_Certificate.png)
 下载完证书，双击运行，然后点击安装证书，存储位置选择本地计算机，点击下一步，会出现一个弹窗，选择是，在证书导入向导处，选择`将所有的证书都放入下列存储`，然后点击浏览，证书存储选择`受信任的根证书颁发机构`，点击确定，点击下一步
 
 打开浏览器设置，搜索代理，点击打开代理设置，打开代理服务器，端口改为8080，点击保存，回到浏览器的搜索页面，搜索百度，然后回到BP的代理页面，选择子导航栏中的HTTP历史记录，就能看到拦截记录了
