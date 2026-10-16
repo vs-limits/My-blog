@@ -16,6 +16,7 @@ draft: true
 2. 1panel的配置
 3. 免费域名
 4. cloudflare的基本使用
-5. kali linux使用
+5. kali linux的基本使用
 6. OWASP Top 10 2021/2017
-7. 获取burpsuite pro+汉化
+7. Burpsuite的基本使用
+8. nmap的基本使用
