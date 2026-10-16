@@ -63,8 +63,8 @@ kali-hidpi-mode
 ### 2.通过Xfce外观设置进行"2x 窗口缩放"
 
 如果习惯了图型界面修改，就打开终端，输入`xfce4-appearance-settings`，会弹出下图窗口
-![](/images/Pasted%20image%2020261006233635.png)
+![](/images/kali_panel_setting.png)
 然后选择setting，选择window Scaling，选择缩放倍数2x，即可
-![](/images/Pasted%20image%2020261006233724.png)
+![](/images/windows_2xsetting.png)
 
 现在鼠标光标显示问题和缩放比例问题都解决啦！恭喜！！
