@@ -5,7 +5,7 @@ tags:
   - 软件
   - 网安
 draft: false
-cover:
+cover: /covers/Burpsuite_pro_cover.png
 pubDate: 2026-09-20
 ---
 # 工作原理
