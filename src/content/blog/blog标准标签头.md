@@ -17,6 +17,7 @@ draft: true
 3. 免费域名
 4. cloudflare的基本使用
 5. kali linux的基本使用
-6. OWASP Top 10 2021/2017
-7. Burpsuite的基本使用
-8. nmap的基本使用
+6. Burpsuite的基本使用
+7. nmap的基本使用
+8. SQL注入的几种分类
+9. 正向shell，反向shell，webshell
