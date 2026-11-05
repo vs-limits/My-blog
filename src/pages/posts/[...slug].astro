@@ -4,14 +4,30 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getTagColor } from '../../utils/tagColors';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog');
-  return posts.map((post) => ({
-    params: { slug: post.id },
-    props: { post },
-  }));
+  const allPosts = await getCollection('blog');
+
+  // 过滤草稿并按发布日期升序排列（从早到晚），使“上一篇”对应更早发布的文章，“下一篇”对应更新的文章
+  const publishedPosts = allPosts
+    .filter((post) => !post.data.draft)
+    .sort((a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf());
+
+  return allPosts.map((post) => {
+    const currentIndex = publishedPosts.findIndex((p) => p.id === post.id);
+    const prevPost = currentIndex > 0 ? publishedPosts[currentIndex - 1] : null;
+    const nextPost = currentIndex >= 0 && currentIndex < publishedPosts.length - 1 ? publishedPosts[currentIndex + 1] : null;
+
+    return {
+      params: { slug: post.id },
+      props: {
+        post,
+        prevPost: prevPost ? { id: prevPost.id, title: prevPost.data.title } : null,
+        nextPost: nextPost ? { id: nextPost.id, title: nextPost.data.title } : null,
+      },
+    };
+  });
 }
 
-const { post } = Astro.props;
+const { post, prevPost, nextPost } = Astro.props;
 const { Content } = await render(post);
 
 function formatDate(date: Date) {
@@ -90,8 +106,47 @@ function formatDate(date: Date) {
       <Content />
     </div>
 
+    <!-- 上一篇 / 下一篇 导航切换 -->
+    {(prevPost || nextPost) && (
+      <nav class="mt-14 pt-8 border-t border-[#E8E1D1] grid grid-cols-1 sm:grid-cols-2 gap-4" aria-label="文章上下篇导航">
+        {prevPost ? (
+          <a
+            href={`/posts/${prevPost.id}/`}
+            class="group flex flex-col justify-center p-4 rounded-xl border border-[#E8E1D1] bg-[#FAF7EE] hover:bg-[#F3ECE0]/70 hover:border-[#DCCBB5] hover:shadow-xs transition-all duration-200 text-left"
+          >
+            <span class="text-xs text-[#8C8276] mb-1.5 flex items-center gap-1.5 group-hover:text-[#9C5B28] transition-colors">
+              <span class="group-hover:-translate-x-1 transition-transform inline-block">←</span>
+              <span>上一篇</span>
+            </span>
+            <span class="text-sm font-semibold text-[#241F1B] group-hover:text-[#9C5B28] transition-colors line-clamp-2 leading-snug">
+              {prevPost.title}
+            </span>
+          </a>
+        ) : (
+          <div class="hidden sm:block"></div>
+        )}
+
+        {nextPost ? (
+          <a
+            href={`/posts/${nextPost.id}/`}
+            class="group flex flex-col justify-center items-end p-4 rounded-xl border border-[#E8E1D1] bg-[#FAF7EE] hover:bg-[#F3ECE0]/70 hover:border-[#DCCBB5] hover:shadow-xs transition-all duration-200 text-right sm:col-start-2"
+          >
+            <span class="text-xs text-[#8C8276] mb-1.5 flex items-center justify-end gap-1.5 group-hover:text-[#9C5B28] transition-colors">
+              <span>下一篇</span>
+              <span class="group-hover:translate-x-1 transition-transform inline-block">→</span>
+            </span>
+            <span class="text-sm font-semibold text-[#241F1B] group-hover:text-[#9C5B28] transition-colors line-clamp-2 leading-snug">
+              {nextPost.title}
+            </span>
+          </a>
+        ) : (
+          <div class="hidden sm:block"></div>
+        )}
+      </nav>
+    )}
+
     <!-- 底部回到顶部与返回导航 -->
-    <div class="mt-16 pt-6 border-t border-[#E8E1D1] flex items-center justify-between text-xs text-[#8C8276]">
+    <div class="mt-8 pt-6 border-t border-[#E8E1D1] flex items-center justify-between text-xs text-[#8C8276]">
       <a href="/" class="hover:text-[#9C5B28] transition-colors">
         ← 返回文章列表
       </a>
